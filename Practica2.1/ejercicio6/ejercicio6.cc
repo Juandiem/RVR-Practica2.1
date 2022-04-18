@@ -8,31 +8,17 @@
 
 #define MAX_RESPONSE_LEN 15
 
-/*
-  argv[0] ---> nombre del programa
-  argv[1] ---> primer argumento (char *)
-  ./time_server_multi 0.0.0.0 2222
-    argv[0] = "./time_server_multi"
-    argv[1] = "0.0.0.0"
-    argv[2] = "2222"
-      |
-      |
-      V
-    res->ai_addr ---> (socket + bind)
-*/
 
-class Connection
+class MessageThread
 {
 	int fd_;
 
 public:
-	Connection(int fd) : fd_(fd) {}
+	MessageThread(int fd) : fd_(fd) {}
 
 	void run() const noexcept
 	{
-		// ---------------------------------------------------------------------- //
 		// RECEPCIÓN MENSAJE DE CLIENTE //
-		// ---------------------------------------------------------------------- //
 		time_t time_;
 		struct tm *tm_;
 
@@ -123,9 +109,7 @@ int main(int argc, char **argv)
 	struct addrinfo hints;
 	struct addrinfo *res;
 
-	// ---------------------------------------------------------------------- //
 	// INICIALIZACIÓN SOCKET & BIND //
-	// ---------------------------------------------------------------------- //
 
 	memset(&hints, 0, sizeof(struct addrinfo));
 
@@ -149,7 +133,7 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	// Libera la información de la dirección una vez ya hemos usado sus datos:
+	// Liberar la información de la dirección despúes de usar los datos
 	freeaddrinfo(res);
 
 	// Crea tantos threads como se hayan especificado, o 3 threads en caso de
@@ -159,14 +143,14 @@ int main(int argc, char **argv)
 	{
 		// Crea una conexión, el thread se encarga de liberar la memoria tan
 		// pronto como haya terminado de trabajar:
-		const auto *conn = new Connection(sd);
+		const auto *conn = new MessageThread(sd);
 		std::thread([conn]() {
 			conn->run();
 			delete conn;
 		}).detach();
 
 		// Espera un segundo antes de crear el siguiente thread para evitar
-		// posibles errores al llamar recvfrom de manera simultánea:
+		// posibles errores de manera simultánea:
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 

@@ -6,27 +6,12 @@
 
 #define MAX_RESPONSE_LEN 15
 
-/*
-	argv[0] ---> nombre del programa
-	argv[1] ---> primer argumento (char *)
-	./time_client 127.0.0.1 3000 t
-		argv[0] = "./time_client"
-		argv[1] = "127.0.0.1"
-		argv[2] = "3000"
-		argv[3] = "t"
-			|
-			|
-			V
-		res->ai_addr ---> (socket + bind)
-*/
 int main(int, char **argv)
 {
 	struct addrinfo hints;
 	struct addrinfo *res;
 
-	// ---------------------------------------------------------------------- //
 	// INICIALIZACIÓN SOCKET//
-	// ---------------------------------------------------------------------- //
 
 	memset(&hints, 0, sizeof(struct addrinfo));
 
@@ -43,12 +28,10 @@ int main(int, char **argv)
 
 	int sd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 
-	// Libera la información de la dirección una vez ya hemos usado sus datos:
+	// Liberar la información de la dirección despúes de usar los datos
 	freeaddrinfo(res);
 
-	// ---------------------------------------------------------------------- //
 	// ENVIO MENSAJE DE CLIENTE //
-	// ---------------------------------------------------------------------- //
 	char buffer[MAX_RESPONSE_LEN];
 
 	sockaddr_in server_addr;

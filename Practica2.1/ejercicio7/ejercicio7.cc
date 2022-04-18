@@ -8,46 +8,27 @@
 
 #include <iostream>
 
-/*
-  argv[0] ---> nombre del programa
-  argv[1] ---> primer argumento (char *)
-  ./echo_server_multi 0.0.0.0 2222
-    argv[0] = "./echo_server_multi"
-    argv[1] = "0.0.0.0"
-    argv[2] = "2222"
-      |
-      |
-      V
-    res->ai_addr ---> (socket + bind)
-*/
-
-class Connection
+class MessageThread
 {
 	int fd_;
 
 public:
-	Connection(int fd) : fd_(fd) {}
-	~Connection() { close(fd_); }
+	MessageThread(int fd) : fd_(fd) {}
+	~MessageThread() { close(fd_); }
 
 	void run() const noexcept
 	{
-		// ---------------------------------------------------------------------- //
-		// RECEPCIÓN MENSAJE DE CLIENTE //
-		// ---------------------------------------------------------------------- //
+		// RECEPCIÓN MENSAJE DE CLIENTE
 		while (true)
 		{
-			// ---------------------------------------------------------------------- //
 			// RECEPCIÓN DEL MENSAJE DEL CLIENTE //
-			// ---------------------------------------------------------------------- //
 			char buffer[80];
 
 			ssize_t bytes = recv(fd_, buffer, sizeof(char) * 79, 0);
 			if (bytes <= 0)
 				break;
 
-			// ---------------------------------------------------------------------- //
 			// ECO DEL MENSAJE DEL CLIENTE //
-			// ---------------------------------------------------------------------- //
 			if (send(fd_, buffer, bytes, 0) == -1)
 				break;
 		}
@@ -58,14 +39,14 @@ int main(int argc, char **argv)
 {
 	if (argc < 2)
 	{
-		std::cerr << "Debes proveer la dirección. Por ejemplo: 0.0.0.0"
+		std::cerr << "Se debe proveer una dirección inicial"
 				  << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	if (argc < 3)
 	{
-		std::cerr << "Debes proveer el puerto. Por ejemplo: 2222"
+		std::cerr << "Se debe proveer un puerto."
 				  << std::endl;
 		return EXIT_FAILURE;
 	}
@@ -73,9 +54,7 @@ int main(int argc, char **argv)
 	struct addrinfo hints;
 	struct addrinfo *res;
 
-	// ---------------------------------------------------------------------- //
 	// INICIALIZACIÓN SOCKET & BIND //
-	// ---------------------------------------------------------------------- //
 
 	memset(&hints, 0, sizeof(struct addrinfo));
 
@@ -102,18 +81,14 @@ int main(int argc, char **argv)
 	// Libera la información de la dirección una vez ya hemos usado sus datos:
 	freeaddrinfo(res);
 
-	// ---------------------------------------------------------------------- //
 	// PUBLICAR EL SERVIDOR (LISTEN) //
-	// ---------------------------------------------------------------------- //
 	if (listen(sd, 16) == -1)
 	{
-		std::cerr << "La llamada LISTEN devolvió un error." << std::endl;
+		std::cerr << "LISTEN devolvió un error." << std::endl;
 		return EXIT_FAILURE;
 	}
 
-	// ---------------------------------------------------------------------- //
 	// GESTION DE LAS CONEXIONES AL SERVIDOR //
-	// ---------------------------------------------------------------------- //
 	struct sockaddr client_addr;
 	socklen_t client_len = sizeof(struct sockaddr);
 
@@ -134,12 +109,12 @@ int main(int argc, char **argv)
 
 		// Crea una conexión, el thread se encarga de liberar la memoria tan
 		// pronto como haya terminado de trabajar:
-		const auto *connection = new Connection(sd_client);
+		const auto *connection = new MessageThread(sd_client);
 		std::thread([connection]() {
 			connection->run();
 			delete connection;
 
-			std::cout << "Conexión terminada." << std::endl;
+			std::cout << "Conexión finalizada." << std::endl;
 		}).detach();
 	}
 

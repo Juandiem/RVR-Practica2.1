@@ -23,7 +23,9 @@ bool scan_socktype(char *address, char *port, struct addrinfo *hints, struct add
 	getnameinfo(res->ai_addr, res->ai_addrlen, host, NI_MAXHOST, service,
 				NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
 
-	std::cout << "IP: " << host << " " << res->ai_family << " " << res->ai_socktype << std::endl;
+	std::cout << "IP: " << host << " " 
+			  << res->ai_family << " " 
+			  << res->ai_socktype << std::endl;
 	return true;
 }
 
@@ -33,25 +35,6 @@ bool scan_family(char *address, char *port, struct addrinfo *hints, struct addri
 
 	return scan_socktype(address, port, hints, res, SOCK_STREAM) && scan_socktype(address, port, hints, res, SOCK_DGRAM) && scan_socktype(address, port, hints, res, SOCK_RAW);
 }
-
-/*
-    argv[0] ---> nombre del programa
-    argv[1] ---> primer argumento (char *)
-    ./addrinfo www.ucm.es 80
-        argv[0] = "./addrinfo"
-        argv[1] = "www.ucm.es"
-        argv[2] = "80"
-            |
-            |
-            V
-        res->ai_addr ---> (socket + bind)
-            |
-            |
-            V
-        host (numeric)
-    ./addrinfo 127.0.0.1 80
-    ./addrinfo www.ucm.es http
-*/
 
 int main(int, char **argv)
 {

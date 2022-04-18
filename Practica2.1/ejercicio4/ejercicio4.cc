@@ -6,19 +6,6 @@
 #include <cstdlib>
 #include <iostream>
 
-/*
-  argv[0] ---> nombre del programa
-  argv[1] ---> primer argumento (char *)
-  ./echo_server 0.0.0.0 2222
-    argv[0] = "./echo_server"
-    argv[1] = "0.0.0.0"
-    argv[2] = "2222"
-      |
-      |
-      V
-    res->ai_addr ---> (socket + bind)
-*/
-
 int main(int argc, char **argv)
 {
 	if (argc < 2)
@@ -38,9 +25,7 @@ int main(int argc, char **argv)
 	struct addrinfo hints;
 	struct addrinfo *res;
 
-	// ---------------------------------------------------------------------- //
 	// INICIALIZACIÓN SOCKET & BIND //
-	// ---------------------------------------------------------------------- //
 
 	memset(&hints, 0, sizeof(struct addrinfo));
 
@@ -65,21 +50,17 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	// Libera la información de la dirección una vez ya hemos usado sus datos:
+	// Liberar la información de la dirección despúes de usar los datos
 	freeaddrinfo(res);
 
-	// ---------------------------------------------------------------------- //
 	// PUBLICAR EL SERVIDOR (LISTEN) //
-	// ---------------------------------------------------------------------- //
 	if (listen(sd, 16) == -1)
 	{
 		std::cerr << "La llamada LISTEN devolvió un error." << std::endl;
 		return EXIT_FAILURE;
 	}
 
-	// ---------------------------------------------------------------------- //
 	// GESTION DE LAS CONEXIONES AL SERVIDOR //
-	// ---------------------------------------------------------------------- //
 	struct sockaddr client_addr;
 	socklen_t client_len = sizeof(struct sockaddr);
 
@@ -96,18 +77,14 @@ int main(int argc, char **argv)
 
 	while (true)
 	{
-		// ---------------------------------------------------------------------- //
 		// RECEPCIÓN DEL MENSAJE DEL CLIENTE //
-		// ---------------------------------------------------------------------- //
 		char buffer[80];
 
 		ssize_t bytes = recv(sd_client, buffer, sizeof(char) * 79, 0);
 		if (bytes <= 0)
 			break;
 
-		// ---------------------------------------------------------------------- //
 		// ECO DEL MENSAJE DEL CLIENTE //
-		// ---------------------------------------------------------------------- //
 		if (send(sd_client, buffer, bytes, 0) == -1)
 			break;
 	}
