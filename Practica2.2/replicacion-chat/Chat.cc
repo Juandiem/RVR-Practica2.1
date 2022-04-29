@@ -23,13 +23,20 @@ void ChatMessage::to_bin()
 
 int ChatMessage::from_bin(char * bobj)
 {
-    alloc_data(MESSAGE_SIZE);
+  alloc_data(MESSAGE_SIZE);
 
-    memcpy(static_cast<void *>(_data), bobj, MESSAGE_SIZE);
+  memcpy(static_cast<void *>(_data), bobj, MESSAGE_SIZE);
 
-    //Reconstruir la clase usando el buffer _data
-
-    return 0;
+  //Reconstruir la clase usando el buffer _data
+  char* tmp = _data;
+  memcpy(&type, tmp,sizeof(int8_t));
+  tmp += sizeof(int8_t);
+  nick.resize(sizeof(char) * 8);
+  memcpy(&nick[0], tmp, sizeof(char) * 8);
+  tmp += sizeof(char) * 8;
+  message.resize(sizeof(char) * 80);
+  memcpy(&message[0], tmp, sizeof(char) * 80);
+  return 0;
 }
 
 // -----------------------------------------------------------------------------
