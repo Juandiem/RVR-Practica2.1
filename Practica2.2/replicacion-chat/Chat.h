@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <vector>
-#include <memory>
 
 #include "Serializable.h"
 #include "Socket.h"
@@ -75,7 +74,7 @@ private:
      *  Lista de clientes conectados al servidor de Chat, representados por
      *  su socket
      */
-    std::vector<std::unique_ptr<Socket>> clients;
+    std::vector<Socket *> clients;
 
     /**
      * Socket del servidor
@@ -134,4 +133,3 @@ private:
      */
     std::string nick;
 };
-
