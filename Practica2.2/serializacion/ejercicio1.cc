@@ -55,26 +55,26 @@ public:
 int main(int argc, char **argv)
 {
     Jugador one_r("-", 0, 0);
-    Jugador one_w("Player_ONE", 123, 987);
+    Jugador player_one("Player_ONE", 123, 987);
 
     //Serializar y escribir one_w en un fichero
     //Leer el fichero en un buffer y "deserializar" en one_r
     //Mostrar el contenido one_r
 
-    int file = open("one_w.txt", O_RDWR | O_TRUNC | O_CREAT);
+    int file = open("player_one.txt", O_RDWR | O_TRUNC | O_CREAT);
 
     if(file < 0) return -1;
 
-    one_w.to_bin(); //serialize player
+    player_one.to_bin(); //serialize player
 
-    write(file, one_w.data(), one_w.size());
+    write(file, player_one.data(), player_one.size());
 
 
-    read(file, one_w.data(), one_w.size());
+    read(file, player_one.data(), player_one.size());
 
     close(file);
 
-    one_r.from_bin(one_w.data());
+    one_r.from_bin(player_one.data());
 
     std::cout << "Player name: " << one_r.name << " Pos_x: " << one_r.pos_x << " Pos_y: " << one_r.pos_y << std::endl;
 
