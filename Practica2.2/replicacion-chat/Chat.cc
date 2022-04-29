@@ -44,19 +44,53 @@ int ChatMessage::from_bin(char * bobj)
 
 void ChatServer::do_messages()
 {
-    while (true)
-    {
-        /*
-         * NOTA: los clientes están definidos con "smart pointers", es necesario
-         * crear un unique_ptr con el objeto socket recibido y usar std::move
-         * para añadirlo al vector
-         */
+  while (true)
+  {
+      //Recibir Mensajes en y en función del tipo de mensaje
+      // - LOGIN: Añadir al vector clients
+      // - LOGOUT: Eliminar del vector clients
+      // - MESSAGE: Reenviar el mensaje a todos los clientes (menos el emisor)
+      while (true)
+      {
 
-        //Recibir Mensajes en y en función del tipo de mensaje
-        // - LOGIN: Añadir al vector clients
-        // - LOGOUT: Eliminar del vector clients
-        // - MESSAGE: Reenviar el mensaje a todos los clientes (menos el emisor)
-    }
+          Socket* client;
+          ChatMessage msg;
+          socket.recv(msg, client);
+
+          int count = 0;
+          switch(msg.type)
+          {
+              case ChatMessage::LOGIN:
+                  clients.push_back(client);
+                  std::cout << msg.nick.c_str() << " logged in" << std::endl;
+              break;
+              case ChatMessage::LOGOUT:
+                  std::cout << msg.nick.c_str() << " logged out" << std::endl;
+                  for(Socket* sock: clients)
+                  {
+                      if((*sock == *client))
+                      {
+                          clients.erase(clients.begin() + count);
+                          break;
+                      }
+                      count++;
+                  }
+              break;
+              case ChatMessage::MESSAGE:
+                  for(Socket* sock: clients)
+                  {
+                      if(!(*sock == *client))
+                          socket.send(msg, *sock);
+                  }
+
+                  std::cout << msg.nick.c_str() << " sent a message" << std::endl;
+              break;
+          }
+
+          std::cout << "Conected: " << clients.size() << std::endl;
+
+      }
+  }
 }
 
 // -----------------------------------------------------------------------------
