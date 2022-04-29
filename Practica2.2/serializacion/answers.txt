@@ -1,0 +1,7 @@
+¿Qué hace el comando od?
+
+	Escribe el contenido del archivo dado aunque el formato de los caracteres sea decimal, binario, hexadecimal, etc.
+
+¿Qué relación hay entre la salida del comando y la serialización?
+
+	El comando deserializa el contenido del archivo, el cual, previamente, hemos serializado.
