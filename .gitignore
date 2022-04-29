@@ -50,3 +50,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+Practica2.2/serializacion/one_w.txt
+
+Practica2.2/serializacion/player_one.txt
