@@ -1,10 +1,18 @@
-#include <string>
 #include <unistd.h>
 #include <string.h>
+#include <string>
+#include <cctype>
+#include <algorithm>
 #include <vector>
+#include <memory>
 
 #include "Serializable.h"
 #include "Socket.h"
+
+#define NICK_SIZE sizeof(char) * 8
+#define MESSAGE_DATA_SIZE sizeof(char) * 80
+
+#define MESSAGE_SIZE NICK_SIZE + MESSAGE_DATA_SIZE + sizeof(uint8_t)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -26,8 +34,6 @@
 class ChatMessage: public Serializable
 {
 public:
-    static const size_t MESSAGE_SIZE = sizeof(char) * 88 + sizeof(uint8_t);
-
     enum MessageType
     {
         LOGIN   = 0,
@@ -35,20 +41,20 @@ public:
         LOGOUT  = 2
     };
 
-    ChatMessage(){};
+    ChatMessage() {};
 
-    ChatMessage(const std::string& n, const std::string& m):nick(n),message(m){};
+    ChatMessage(const std::string& n, const std::string& m) : nick(n), message(m) {};
 
     void to_bin();
 
-    int from_bin(char * bobj);
+    int from_bin(char* bobj);
 
+public:
     uint8_t type;
 
     std::string nick;
     std::string message;
 };
-
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
@@ -58,8 +64,7 @@ public:
 class ChatServer
 {
 public:
-    ChatServer(const char * s, const char * p): socket(s, p)
-    {
+    ChatServer(const char * s, const char * p): socket(s, p) {
         socket.bind();
     };
 
@@ -74,20 +79,17 @@ private:
      *  Lista de clientes conectados al servidor de Chat, representados por
      *  su socket
      */
-    std::vector<Socket *> clients;
+    std::vector<std::unique_ptr<Socket>> clients;
 
     /**
      * Socket del servidor
      */
     Socket socket;
 };
-
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-/**
- *  Clase para el cliente de chat
- */
+// Clase para el cliente de chat
 class ChatClient
 {
 public:
@@ -96,17 +98,12 @@ public:
      * @param p puerto del servidor
      * @param n nick del usuario
      */
-    ChatClient(const char * s, const char * p, const char * n):socket(s, p),
-        nick(n){};
+    ChatClient(const char * s, const char * p, const char * n) : socket(s, p), nick(n) {};
 
-    /**
-     *  Envía el mensaje de login al servidor
-     */
+    // Envía el mensaje de login al servidor
     void login();
 
-    /**
-     *  Envía el mensaje de logout al servidor
-     */
+    // Envía el mensaje de logout al servidor
     void logout();
 
     /**
@@ -122,14 +119,10 @@ public:
     void net_thread();
 
 private:
-
-    /**
-     * Socket para comunicar con el servidor
-     */
+    // Socket para comunicar con el servidor
     Socket socket;
 
-    /**
-     * Nick del usuario
-     */
+    // Nick del usuario
     std::string nick;
 };
+// -----------------------------------------------------------------------------
