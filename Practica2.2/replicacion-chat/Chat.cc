@@ -52,7 +52,6 @@ void ChatServer::do_messages()
       // - MESSAGE: Reenviar el mensaje a todos los clientes (menos el emisor)
       while (true)
       {
-
           Socket* client;
           ChatMessage msg;
           socket.recv(msg, client);
@@ -86,9 +85,7 @@ void ChatServer::do_messages()
                   std::cout << msg.nick.c_str() << " sent a message" << std::endl;
               break;
           }
-
           std::cout << "Conected: " << clients.size() << std::endl;
-
       }
   }
 }
